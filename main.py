@@ -1,6 +1,20 @@
 from scapy.all import *
-
+from datetime import datetime
 ip_count = {}
+
+
+def combined_callback(pkt):
+    print_packet_info(pkt)
+    packet_callback(pkt)
+
+
+def packet_callback(pkt):
+	if IP not in pkt:
+   		return
+	time_stamp= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+	log = f"{time_stamp} - {pkt.summary()}"
+	with open("logs/traffic_log.log", "a") as f:
+		f.write(log + "\n")
 
 def print_packet_info(pkt):
 	if IP not in pkt:
@@ -23,7 +37,7 @@ def print_packet_info(pkt):
 		print(f"SRC: {pkt[IP].src} ->  DST: {pkt[IP].dst} | Other ")
 	
 
-frames = sniff(prn = print_packet_info, timeout=10)
+frames = sniff(prn = combined_callback, timeout=10)
 
 print("\n Traffic Summary:")
 for ip,count in ip_count.items():
